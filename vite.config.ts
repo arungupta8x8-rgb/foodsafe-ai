@@ -31,8 +31,7 @@ export default defineConfig({
     },
   },
   
-  // Base path for GitHub Pages deployment
-  base: '/foodsafe-ai/',
+  // Base path removed for Vercel deployment (handled automatically)
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
