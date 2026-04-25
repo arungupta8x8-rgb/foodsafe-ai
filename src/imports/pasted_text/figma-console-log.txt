@@ -1,0 +1,82 @@
+Running frontend commit 17dbffd1bdb7ee4bb49b4fef937b8c583857a52e
+vendor-core-c78631ab124923e5.min.js.br:54 Statsig is not ready to log exposures, will retry in 1 seconds
+(anonymous) @ vendor-core-c78631ab124923e5.min.js.br:54Understand this warning
+(index):1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+vendor-core-c78631ab124923e5.min.js.br:54 [import] git: 93dcdfe86b981b45581096cb4a6579ec4e9baf1b, stamp: ADB2BCC8AE3472B2
+7Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: <URL>Understand this warning
+vendor-core-c78631ab124923e5.min.js.br:54 Autosave Changes not available or already claimed by another tab undefined
+596-c1914424d1a91a57.min.js.br:183 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.figma.com/webfont/1/SourceCodePro-Medium.woff2
+918-28b22dd747eac68d.min.js.br:7 The powerPreference option is currently ignored when calling requestAdapter() on Windows. See https://crbug.com/369219127
+initialize @ 918-28b22dd747eac68d.min.js.br:7Understand this warning
+vendor-core-c78631ab124923e5.min.js.br:54 [Fullscreen] Booting... (emscripten version 4.0.21)
+vendor-core-c78631ab124923e5.min.js.br:54 [GPU] graphicsAPI:"WebGPU", vendor:"Google Inc. (AMD)" renderer:"ANGLE (AMD, AMD RadeonT 610M (0x00001506) Direct3D11 vs_5_0 ps_5_0, D3D11)" deviceArchitecture:"rdna-2" deviceDescription:"" webGPUDevice:"" webGPUVendor:"amd" bindings:"emdawnwebgpu"
+vendor-core-c78631ab124923e5.min.js.br:54 [Fullscreen] Ready in 973.8ms
+vendor-core-c78631ab124923e5.min.js.br:54 [FullscreenApp] calling setEditorTheme and setting preference light
+vendor-core-c78631ab124923e5.min.js.br:54 [MultiplayerSession] connecting to wss://www.figma.com/api/multiplayer/uVEDu05kf7wbNywkACvI83?role=editor&tracking_session_id=ScnqSDHQJDLgLUyZ&version=151&recentReload=0&file-load-streaming-compression=&user-id=1625753206565857555&client_release=17dbffd1bdb7ee4bb49b4fef937b8c583857a52e&force-dpl-journaled-reconnect=1
+vendor-core-c78631ab124923e5.min.js.br:54 [FullscreenApp] calling setEditorTheme and setting preference light
+vendor-core-c78631ab124923e5.min.js.br:54 [MultiplayerSession] Joining file version 106 (initial load)
+AI-Allergy-Food-Assistant?p=f&t=SSmFz49ikGMxlDvE-0:1 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.figma.com/webfont/1/Figma-Mono-Bold.woff2
+AI-Allergy-Food-Assistant?p=f&t=SSmFz49ikGMxlDvE-0:1 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.figma.com/webfont/1/Figma-Mono-Regular.woff2
+vendor-core-c78631ab124923e5.min.js.br:54 [Fullscreen] loadtime=3.44s maxmem=11433196
+vendor-core-c78631ab124923e5.min.js.br:54 [devtools] Initialized LS
+3892-028f46360c282f13.min.js.br:34 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.figma.com/webfont/1/Roboto-Bold.woff2
+vendor-core-c78631ab124923e5.min.js.br:54 [devtools] Initialized LS
+vendor-core-c78631ab124923e5.min.js.br:54 Loaded 98 scripts (8593670b), 41 from cache (1322797b)
+(index):1 Access to fetch at 'https://zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup' from origin 'https://d6b3e99d-db00-469e-a089-36fd7d1f2cd4-v3-figmaiframepreview.figma.site' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.Understand this error
+(index):1 Access to fetch at 'https://zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup' from origin 'https://d6b3e99d-db00-469e-a089-36fd7d1f2cd4-v3-figmaiframepreview.figma.site' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.Understand this error
+(index):1 Access to fetch at 'https://zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup' from origin 'https://d6b3e99d-db00-469e-a089-36fd7d1f2cd4-v3-figmaiframepreview.figma.site' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.Understand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+ Signup error: TypeError: Failed to fetch
+    at handleSignup (app-wsxdcfbt4vyppumdf4lnw4pzsgkkdfyjyyj4wqemqrvqoliz5cna.makeproxy-c.figma.site/src/app/App.tsx:121:30)
+    at handleSubmit (app-wsxdcfbt4vyppumdf4lnw4pzsgkkdfyjyyj4wqemqrvqoliz5cna.makeproxy-c.figma.site/src/app/components/AuthScreen.tsx:44:15)
+    at HTMLUnknownElement.y (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:54006)
+    at Object.ik (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:54331)
+    at iz (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:55284)
+    at i$ (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:55341)
+    at dP (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:10702)
+    at dM (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:11042)
+    at dG (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:11125)
+    at dk (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:11212)
+r @ code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:17Understand this error
+vendor-core-c78631ab124923e5.min.js.br:54 Too many elapsed hits of synthesize-all-pending-changes since last report
+(anonymous) @ vendor-core-c78631ab124923e5.min.js.br:54Understand this warning
+(index):1 Access to fetch at 'https://zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup' from origin 'https://d6b3e99d-db00-469e-a089-36fd7d1f2cd4-v3-figmaiframepreview.figma.site' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.Understand this error
+(index):1 Access to fetch at 'https://zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup' from origin 'https://d6b3e99d-db00-469e-a089-36fd7d1f2cd4-v3-figmaiframepreview.figma.site' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.Understand this error
+(index):1 Access to fetch at 'https://zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup' from origin 'https://d6b3e99d-db00-469e-a089-36fd7d1f2cd4-v3-figmaiframepreview.figma.site' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.Understand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: net::ERR_FAILEDUnderstand this error
+ Signup error: TypeError: Failed to fetch
+    at handleSignup (app-wsxdcfbt4vyppumdf4lnw4pzsgkkdfyjyyj4wqemqrvqoliz5cna.makeproxy-c.figma.site/src/app/App.tsx:121:30)
+    at handleSubmit (app-wsxdcfbt4vyppumdf4lnw4pzsgkkdfyjyyj4wqemqrvqoliz5cna.makeproxy-c.figma.site/src/app/components/AuthScreen.tsx:44:15)
+    at HTMLUnknownElement.y (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:54006)
+    at Object.ik (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:54331)
+    at iz (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:55284)
+    at i$ (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:25:55341)
+    at dP (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:10702)
+    at dM (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:11042)
+    at dG (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:11125)
+    at dk (code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:37:11212)
+r @ code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:17Understand this error
+/api/rev/uVEDu05kf7wbNywkACvI83/code_snapshot/d92e58618f25d421139a715ec39de3691adb5004bac263229c4e2184f6d4e96f:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+vendor-core-c78631ab124923e5.min.js.br:54 Failed to fetch snapshot files: T: XHR for "/api/rev/uVEDu05kf7wbNywkACvI83/code_snapshot/d92e58618f25d421139a715ec39de3691adb5004bac263229c4e2184f6d4e96f" failed with status 404
+    at N (596-c1914424d1a91a57.min.js.br:1403:13521)
+    at async Object.R [as get] (596-c1914424d1a91a57.min.js.br:1403:13904)
+    at async 589-0db3e0985f215e4b.min.js.br:3:1766
+    at async 8613-9767776077de68fe.min.js.br:3:140471
+    at async 589-0db3e0985f215e4b.min.js.br:3:2274
+    at async v (8613-9767776077de68fe.min.js.br:3:139889)
+    at async 8613-9767776077de68fe.min.js.br:3:116565
+(anonymous) @ vendor-core-c78631ab124923e5.min.js.br:54Understand this warning
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: the server responded with a status of 401 ()Understand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: the server responded with a status of 401 ()Understand this error
+zhcsumdnpmpxvlptutoi.supabase.co/functions/v1/make-server-59dde27b/signup:1  Failed to load resource: the server responded with a status of 401 ()Understand this error
+ Signup error: Error: Signup failed
+    at handleSignup (app-wsxdcfbt4vyppumdf4lnw4pzsgkkdfyjyyj4wqemqrvqoliz5cna.makeproxy-c.figma.site/src/app/App.tsx:133:15)
+    at async handleSubmit (app-wsxdcfbt4vyppumdf4lnw4pzsgkkdfyjyyj4wqemqrvqoliz5cna.makeproxy-c.figma.site/src/app/components/AuthScreen.tsx:44:9)
+r @ code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:17Understand this error
+ GoTrueClient@sb-zhcsumdnpmpxvlptutoi-auth-token:1 (2.103.3) 2026-04-17T06:06:12.913Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+r @ code_components_preview_iframe-ea7eb85a13ca9d76.min.js.br:17Understand this warning
+ 6:06:08 AM [vite] (client) hmr update /src/app/App.tsx, /src/styles/index.css
