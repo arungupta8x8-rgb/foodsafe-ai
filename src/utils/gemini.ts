@@ -1,6 +1,11 @@
 // Gemini API Configuration
 export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
+// Check if API key is available
+export const isGeminiAvailable = () => {
+  return GEMINI_API_KEY && GEMINI_API_KEY.length > 0;
+};
+
 export interface GeminiResponse {
   candidates: Array<{
     content: {
@@ -25,6 +30,12 @@ export async function chatWithGemini(
   messages: Array<{ role: string; content: string }>,
   userProfile: { allergies: string[]; severity: { [key: string]: 'low' | 'medium' | 'high' }; dietType?: string }
 ) {
+  // Check if API key is available
+  if (!isGeminiAvailable()) {
+    console.warn('Gemini API key not configured, using fallback response');
+    return 'AI services are currently unavailable. Please configure your API key in the environment settings to enable AI assistance. You can still use the app for manual allergen tracking and search history.';
+  }
+
   try {
     const systemMessage = {
       role: 'user',
@@ -90,6 +101,12 @@ export async function analyzeFoodWithGemini(
   text: string, 
   userProfile: { allergies: string[]; severity: { [key: string]: 'low' | 'medium' | 'high' } }
 ) {
+  // Check if API key is available
+  if (!isGeminiAvailable()) {
+    console.warn('Gemini API key not configured, using fallback analysis');
+    return analyzeFoodTextFallback(text, userProfile);
+  }
+
   try {
     const prompt = `
       Analyze the following food ingredients or text for potential allergens and safety concerns.
