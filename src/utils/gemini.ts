@@ -1,5 +1,5 @@
 // Gemini API Configuration
-export const GEMINI_API_KEY = 'AIzaSyC6vmm3mAJeDzDfdGwGS4QZxWI5hB0Q13U';
+export const GEMINI_API_KEY = 'AIzaSyB4gtkJ1ajm5sYcPrV1iWmcCo3jjmutt9Q';
 
 // Check if API key is available
 export const isGeminiAvailable = () => {
@@ -85,7 +85,9 @@ export async function chatWithGemini(
     );
 
     if (!response.ok) {
-      throw new Error('Gemini chat API request failed');
+      const errorText = await response.text();
+      console.error('Gemini API Error Response:', errorText);
+      throw new Error(`Gemini chat API request failed: ${response.status} - ${errorText}`);
     }
 
     const data: GeminiResponse = await response.json();
