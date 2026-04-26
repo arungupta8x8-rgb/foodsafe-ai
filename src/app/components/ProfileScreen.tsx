@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, Plus, X, Save, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, X, Save, AlertCircle, History } from 'lucide-react';
 import type { UserProfile } from '../App';
 
 interface ProfileScreenProps {
   userProfile: UserProfile;
   onSave: (profile: UserProfile) => void;
   onBack: () => void;
+  onNavigateToHistory?: () => void;
 }
 
 const COMMON_ALLERGENS = [
@@ -23,7 +24,7 @@ const COMMON_ALLERGENS = [
 
 const DIET_TYPES = ['None', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Keto', 'Paleo'];
 
-export function ProfileScreen({ userProfile, onSave, onBack }: ProfileScreenProps) {
+export function ProfileScreen({ userProfile, onSave, onBack, onNavigateToHistory }: ProfileScreenProps) {
   const [allergies, setAllergies] = useState<string[]>(userProfile.allergies);
   const [severity, setSeverity] = useState<{ [key: string]: 'low' | 'medium' | 'high' }>(
     userProfile.severity
@@ -95,6 +96,17 @@ export function ProfileScreen({ userProfile, onSave, onBack }: ProfileScreenProp
           <Save className="size-5" />
           <span>Save</span>
         </motion.button>
+        {onNavigateToHistory && (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onNavigateToHistory}
+            className="bg-secondary text-secondary-foreground px-4 py-3 rounded-xl hover:bg-secondary/80 transition-colors flex items-center gap-2"
+          >
+            <History className="size-5" />
+            <span>History</span>
+          </motion.button>
+        )}
       </div>
 
       {/* Safety notice */}

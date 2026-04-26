@@ -11,8 +11,8 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { EmergencyMode } from './components/EmergencyMode';
 import { ThemeToggle } from './components/ThemeToggle';
 import { UserProfileDisplay } from './components/UserProfileDisplay';
-import { SearchHistory } from './components/SearchHistory';
 import { LanguageSelector, useTranslation } from './components/LanguageSelector';
+import { searchHistoryService } from '../utils/searchHistory';
 
 export type Screen = 'home' | 'scanner' | 'results' | 'chat' | 'profile' | 'emergency' | 'userprofile';
 
@@ -46,8 +46,31 @@ export default function App() {
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const { translate } = useTranslation();
 
-  // Check for existing session on mount
+  // Initialize services and check for existing session on mount
   useEffect(() => {
+    // Initialize search history service
+    console.log('App: Initializing search history service');
+    searchHistoryService.getHistory(); // This will trigger loading from localStorage
+    
+    // Test search history service
+    console.log('App: Testing search history service...');
+    try {
+      searchHistoryService.addToHistory('Test: App initialized', 'This is a test from App.tsx');
+      console.log('App: Test item added to search history');
+      const history = searchHistoryService.getHistory();
+      console.log('App: Current search history length:', history.length);
+      console.log('App: Search history items:', history);
+    } catch (error) {
+      console.error('App: Error testing search history service:', error);
+    }
+    
+    // Expose test function globally
+    (window as any).testSearchHistory = () => {
+      const history = searchHistoryService.getHistory();
+      console.log('Test Search History:', history);
+      alert(`Search History has ${history.length} items. Check console for details.`);
+    };
+    
     checkSession();
   }, []);
 
@@ -382,6 +405,7 @@ export default function App() {
                     userProfile={userProfile}
                     onSave={saveProfile}
                     onBack={() => setCurrentScreen('home')}
+                    onNavigateToHistory={() => setCurrentScreen('userprofile')}
                   />
                 )}
                 {currentScreen === 'userprofile' && (

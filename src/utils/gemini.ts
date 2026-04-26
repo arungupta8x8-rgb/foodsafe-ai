@@ -1,5 +1,5 @@
 // Gemini API Configuration
-export const GEMINI_API_KEY = 'AIzaSyB4gtkJ1ajm5sYcPrV1iWmcCo3jjmutt9Q'; // Replace with your actual API key
+export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 export interface GeminiResponse {
   candidates: Array<{
@@ -20,6 +20,72 @@ export interface GeminiRequest {
 }
 
 // Gemini API for food allergen analysis
+// Gemini API for chat assistance
+export async function chatWithGemini(
+  messages: Array<{ role: string; content: string }>,
+  userProfile: { allergies: string[]; severity: { [key: string]: 'low' | 'medium' | 'high' }; dietType?: string }
+) {
+  try {
+    const systemMessage = {
+      role: 'user',
+      content: `You are AllerGuard AI, a compassionate and knowledgeable food safety assistant.
+      
+      User Profile:
+      - Allergies: ${userProfile.allergies.join(', ') || 'None set'}
+      - Severity: ${JSON.stringify(userProfile.severity)}
+      - Diet: ${userProfile.dietType || 'Not specified'}
+      
+      Your role:
+      1. Provide accurate, helpful food safety information
+      2. Suggest safe alternatives when needed
+      3. Be empathetic to allergy concerns
+      4. Always prioritize user safety
+      5. Recommend consulting healthcare providers for medical decisions
+      6. When suggesting restaurants or foods, consider cross-contamination risks
+      
+      Guidelines:
+      - Be concise but thorough
+      - Use bullet points for clarity
+      - Always mention when to verify with staff/labels
+      - Include practical, actionable advice
+      
+      Now respond to this user message: ${messages[messages.length - 1]?.content || ''}`
+    };
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: systemMessage.content
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800,
+          }
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Gemini chat API request failed');
+    }
+
+    const data: GeminiResponse = await response.json();
+    
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not process your request.';
+  } catch (error) {
+    console.error('Gemini chat error:', error);
+    throw error;
+  }
+}
+
 export async function analyzeFoodWithGemini(
   text: string, 
   userProfile: { allergies: string[]; severity: { [key: string]: 'low' | 'medium' | 'high' } }

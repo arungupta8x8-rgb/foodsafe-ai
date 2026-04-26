@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Camera, Type, Barcode, ArrowLeft, Sparkles, Upload } from 'lucide-react';
 import type { ScanResult, UserProfile } from '../App';
-import { analyzeFoodWithGemini } from '../../utils/gemini-new';
-import { GEMINI_API_KEY } from '../../utils/gemini-new';
+import { analyzeFood, analyzeImage, AIProvider } from '../../utils/ai-provider';
+import { AIProviderSelector } from './AIProviderSelector';
+import { searchHistoryService } from '../../utils/searchHistory';
 
 interface ScannerScreenProps {
   onBack: () => void;
@@ -15,6 +16,7 @@ export function ScannerScreen({ onBack, onScan, userProfile }: ScannerScreenProp
   const [scanMode, setScanMode] = useState<'text' | 'image' | 'barcode' | null>(null);
   const [inputText, setInputText] = useState('');
   const [isScanning, setIsScanning] = useState(false);
+  const [aiProvider, setAiProvider] = useState<AIProvider>('gemini');
 
   const handleTextScan = async () => {
     if (!inputText.trim()) return;
@@ -22,12 +24,20 @@ export function ScannerScreen({ onBack, onScan, userProfile }: ScannerScreenProp
     setIsScanning(true);
 
     try {
-      // Use Gemini API for real AI analysis
-      const result = await analyzeFoodWithGemini(inputText, userProfile);
+      // Use selected AI provider for analysis
+      const result = await analyzeFood(inputText, userProfile, aiProvider);
       setIsScanning(false);
+      
+      // Add to search history
+      try {
+        searchHistoryService.addToHistory(`Scanned: ${inputText}`, `Found allergens: ${result.allergens.join(', ')}`);
+      } catch (error) {
+        console.error('Error adding to search history:', error);
+      }
+      
       onScan(result);
     } catch (error) {
-      console.error('Gemini analysis error:', error);
+      console.error(`${aiProvider} analysis error:`, error);
       setIsScanning(false);
       // Show error to user
       alert('AI analysis failed. Please try again.');
@@ -59,133 +69,31 @@ export function ScannerScreen({ onBack, onScan, userProfile }: ScannerScreenProp
             throw new Error("Invalid image format");
           }
           
-          // Use Gemini API for image analysis
-          const prompt = `
-          Analyze this food image for ingredients and potential allergens.
+          // Extract base64 data (remove data:image/jpeg;base64, prefix)
+          const base64Data = base64Image.split(',')[1];
           
-          User's known allergies: ${userProfile.allergies.join(', ')}
-          User's allergy severity levels: ${JSON.stringify(userProfile.severity)}
+          // Use AI provider manager with Grok Free for image analysis
+          const result = await analyzeImage(base64Data, file.type, userProfile, aiProvider);
+
+          setIsScanning(false);
           
-          Please extract all visible text/ingredients from this image and analyze for:
-          1. Common allergens: peanuts, tree nuts, milk, eggs, fish, shellfish, soy, wheat, sesame
-          2. Risk assessment based on user's allergy profile
-          3. Safety explanation
-          4. Safe alternatives if needed
-          
-          IMPORTANT: Return ONLY raw JSON. Do not use markdown or backticks. Keep explanations brief (under 100 characters). No extra text or explanations.
-          Format: {"detected_allergens": ["allergen1", "allergen2"], "risk_level": "low|medium|high", "explanation": "brief safety explanation", "safe_alternatives": ["alternative1", "alternative2"], "ingredients": ["ingredient1", "ingredient2", "ingredient3"]}
-        `;
-
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              contents: [{
-                role: "user",
-                parts: [
-                  {
-                    inline_data: {
-                      mime_type: file.type,
-                      data: base64Image.split(',')[1] // Remove data:image/jpeg;base64, prefix
-                    }
-                  },
-                  {
-                    text: prompt
-                  }
-                ]
-              }],
-              generationConfig: {
-                temperature: 0.1,
-                maxOutputTokens: 1000,
-              }
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Gemini image analysis failed');
-        }
-
-        const data = await response.json();
-        
-        if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-          throw new Error('No response from Gemini API');
-        }
-
-        // Parse the JSON response from Gemini safely
-        const rawText = data.candidates[0].content.parts[0].text;
-        
-        // Step 1: Remove markdown (```json ... ```)
-        let cleanedText = rawText
-          .replace(/```json/g, '')
-          .replace(/```/g, '')
-          .trim();
-        
-        // Step 2: Handle incomplete JSON responses
-        let jsonToParse = cleanedText;
-        
-        // Check if JSON is incomplete (missing closing brace)
-        if (cleanedText.startsWith('{') && !cleanedText.endsWith('}')) {
-          // Try to find the last complete JSON object
-          const braceCount = (cleanedText.match(/\{/g) || []).length;
-          const closeBraceCount = (cleanedText.match(/\}/g) || []).length;
-          
-          if (braceCount > closeBraceCount) {
-            // Add missing closing braces
-            const missingBraces = braceCount - closeBraceCount;
-            jsonToParse = cleanedText + '}'.repeat(missingBraces);
-          }
-        }
-        
-        // Step 3: Extract JSON safely
-        const jsonMatch = jsonToParse.match(/\{[\s\S]*\}/);
-        
-        if (!jsonMatch) {
-          console.error("RAW RESPONSE:", rawText);
-          console.error("CLEANED TEXT:", cleanedText);
-          throw new Error("No JSON found in response");
-        }
-        
-        // Step 4: Parse with fallback
-        let aiResponse;
-        try {
-          aiResponse = JSON.parse(jsonMatch[0]);
-        } catch (e) {
-          console.error("PARSE ERROR:", jsonMatch[0]);
-          // Fallback: try to manually parse partial JSON
+          // Add to search history
           try {
-            const partialJson = jsonMatch[0].replace(/,[\s]*$/, ''); // Remove trailing comma
-            aiResponse = JSON.parse(partialJson);
-          } catch (e2) {
-            console.error("FALLBACK PARSE FAILED:", e2);
-            throw new Error("Invalid JSON format");
+            searchHistoryService.addToHistory(`Image scan: ${file.name}`, `Found allergens: ${result.allergens.join(', ')}`);
+          } catch (error) {
+            console.error('Error adding to search history:', error);
           }
+          
+          onScan(result);
+        } catch (error) {
+          console.error("Image processing error:", error);
+          setIsScanning(false);
+          alert("Image processing failed. Please try again or use text input instead.");
+        } finally {
+          // Always ensure scanning state is reset
+          setIsScanning(false);
         }
-        
-        const result = {
-          food: 'Analyzed food from image',
-          allergens: aiResponse.detected_allergens || [],
-          riskLevel: aiResponse.risk_level || 'low',
-          explanation: aiResponse.explanation || 'AI analysis completed',
-          safeAlternatives: aiResponse.safe_alternatives || [],
-          ingredients: aiResponse.ingredients || [],
-        };
-
-        setIsScanning(false);
-        onScan(result);
-      } catch (error) {
-        console.error("🔥 ONLOAD ERROR:", error);
-        setIsScanning(false);
-        alert("Image processing failed. Check console.");
-      } finally {
-        // Always ensure scanning state is reset
-        setIsScanning(false);
-      }
-    };
+      };
   } catch (error) {
       console.error('Image analysis error:', error);
       setIsScanning(false);
@@ -218,6 +126,13 @@ export function ScannerScreen({ onBack, onScan, userProfile }: ScannerScreenProp
           <p className="text-sm text-muted-foreground">Choose your scanning method</p>
         </div>
       </div>
+
+      {/* AI Provider Selector */}
+      <AIProviderSelector
+        selectedProvider={aiProvider}
+        onProviderChange={setAiProvider}
+        disabled={isScanning}
+      />
 
       {/* Scanning modes */}
       {!scanMode && (

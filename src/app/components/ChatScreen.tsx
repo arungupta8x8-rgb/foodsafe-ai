@@ -2,12 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Send, ArrowLeft, Bot, User as UserIcon, Sparkles } from 'lucide-react';
 import type { ScanResult, UserProfile } from '../App';
-import { analyzeFoodWithGemini } from '../../utils/gemini-new';
-import { GEMINI_API_KEY } from '../../utils/gemini-new';
+import { chatWithAI, AIProvider } from '../../utils/ai-provider';
+import { AIProviderSelector } from './AIProviderSelector';
 import { useTranslation } from './LanguageSelector';
+import { searchHistoryService } from '../../utils/searchHistory';
 
-// Debug: Check if API key is loaded
-console.log('Gemini API Key loaded:', GEMINI_API_KEY ? 'Yes' : 'No');
 
 interface Message {
   id: string;
@@ -26,6 +25,7 @@ export function ChatScreen({ onBack, userProfile, scanResult }: ChatScreenProps)
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [aiProvider, setAiProvider] = useState<AIProvider>('gemini');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { translate } = useTranslation();
 
@@ -65,82 +65,43 @@ export function ChatScreen({ onBack, userProfile, scanResult }: ChatScreenProps)
     setIsTyping(true);
 
     try {
-      // Debug: Check API key before making request
-      console.log('Making API call with key:', GEMINI_API_KEY ? 'Key exists' : 'No key');
-      
-      // Use Gemini API for real AI responses
-      const context = scanResult 
-        ? `Previous scan result: Food: ${scanResult.food}, Allergens: ${scanResult.allergens.join(', ')}, Risk Level: ${scanResult.riskLevel}`
-        : 'User is asking about food safety and allergies.';
-
-      const prompt = `
-        You are AllerGuard AI, an intelligent and flexible food safety and allergy assistant.
-
-        Your responsibilities:
-        - Help users with food allergies, ingredients, symptoms, and safe alternatives
-        - Answer even if question is indirect or not clearly about allergies
-        - If question is slightly unrelated, gently connect it to food safety or health
-        - Never reject a question
-
-        User Profile:
-        Allergies: ${userProfile.allergies.join(', ')}
-        Severity levels: ${JSON.stringify(userProfile.severity)}
-        
-        User Question: ${input}
-        
-        ${context}
-        
-        Guidelines:
-        - Be clear, simple, and helpful
-        - Use bullet points when needed
-        - If medical risk is involved, advise consulting a doctor
-        - For serious reactions, mention emergency help
-        - Do NOT say "I only answer food allergy questions"
-        - Try to understand user's intent (even if unclear)
-        - Answer ALL questions - never reject
-
-        Please provide a helpful, accurate, and safety-focused response about food allergies, ingredients, and safe alternatives.
-        Always prioritize user safety and be clear about potential risks.
-      `;
-
-      console.log('Sending request to Gemini API...');
-      
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      // Use AI provider manager with Grok Free as default
+      const messagesForAI = [
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1000,
-            }
-          }),
+          role: 'system' as const,
+          content: `You are AllerGuard AI, an intelligent and flexible food safety and allergy assistant.
+
+          Your responsibilities:
+          - Help users with food allergies, ingredients, symptoms, and safe alternatives
+          - Answer even if question is indirect or not clearly about allergies
+          - If question is slightly unrelated, gently connect it to food safety or health
+          - Never reject a question
+
+          User Profile:
+          Allergies: ${userProfile.allergies.join(', ')}
+          Severity levels: ${JSON.stringify(userProfile.severity)}
+          
+          ${scanResult ? `Previous scan result: Food: ${scanResult.food}, Allergens: ${scanResult.allergens.join(', ')}, Risk Level: ${scanResult.riskLevel}` : 'User is asking about food safety and allergies.'}
+          
+          Guidelines:
+          - Be clear, simple, and helpful
+          - Use bullet points when needed
+          - If medical risk is involved, advise consulting a doctor
+          - For serious reactions, mention emergency help
+          - Do NOT say "I only answer food allergy questions"
+          - Try to understand user's intent (even if unclear)
+          - Answer ALL questions - never reject
+
+          Please provide a helpful, accurate, and safety-focused response about food allergies, ingredients, and safe alternatives.
+          Always prioritize user safety and be clear about potential risks.`
+        },
+        {
+          role: 'user' as const,
+          content: input
         }
-      );
+      ];
 
-      console.log('API Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('API Error:', errorData);
-        throw new Error(`Gemini API request failed: ${response.status} ${errorData}`);
-      }
-
-      const data = await response.json();
-      
-      if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        throw new Error('No response from Gemini API');
-      }
-
-      const aiResponse = data.candidates[0].content.parts[0].text;
+      const aiResponse = await chatWithAI(messagesForAI, userProfile, aiProvider);
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -153,8 +114,12 @@ export function ChatScreen({ onBack, userProfile, scanResult }: ChatScreenProps)
       setIsTyping(false);
       
       // Add to search history
-      if ((window as any).addToSearchHistory) {
-        (window as any).addToSearchHistory(input, aiResponse);
+      console.log('Chat: Adding to search history:', input);
+      try {
+        searchHistoryService.addToHistory(input, aiResponse);
+        console.log('Chat: Successfully added to search history');
+      } catch (error) {
+        console.error('Chat: Error adding to search history:', error);
       }
     } catch (error) {
       console.error('Gemini chat error:', error);
@@ -316,6 +281,11 @@ Is there a specific food or ingredient you'd like to know more about?`;
             <p className="text-xs text-muted-foreground">Always here to help</p>
           </div>
         </div>
+        <AIProviderSelector 
+          selectedProvider={aiProvider} 
+          onProviderChange={setAiProvider}
+          disabled={isTyping}
+        />
       </div>
 
       {/* Messages */}

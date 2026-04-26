@@ -92,14 +92,7 @@ export function SearchHistory({ onSelectHistory }: SearchHistoryProps) {
     return `${days}d ago`;
   };
 
-  // Expose addToHistory function globally for other components
-  useEffect(() => {
-    (window as any).addToSearchHistory = addToHistory;
-    return () => {
-      delete (window as any).addToSearchHistory;
-    };
-  }, [history]);
-
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search History Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Search History Debug Test</h1>
+        <p>Debug search history functionality</p>
+
+        <div class="test-section">
+            <h3>Test Search History Service</h3>
+            <input type="text" id="testQuery" placeholder="Enter test query..." value="What are the allergens in peanuts?">
+            <br>
+            <button onclick="testAddToHistory()">Test Add to History</button>
+            <button onclick="testGetHistory()">Test Get History</button>
+            <button onclick="testClearHistory()">Test Clear History</button>
+            <button onclick="testLocalStorage()">Test localStorage Direct</button>
+            <div id="testResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>localStorage Contents</h3>
+            <button onclick="showLocalStorage()">Show All localStorage</button>
+            <button onclick="clearAllStorage()">Clear All Storage</button>
+            <div id="storageResult" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Global Function Test</h3>
+            <button onclick="testGlobalFunction()">Test addToSearchHistory Global</button>
+            <div id="globalResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the search history service
+        import { searchHistoryService, addToSearchHistory } from './src/utils/searchHistory.js';
+
+        window.testAddToHistory = function() {
+            const query = document.getElementById('testQuery').value;
+            if (!query.trim()) {
+                showResult('testResult', 'Please enter a query', 'error');
+                return;
+            }
+
+            try {
+                searchHistoryService.addToHistory(query, 'Test response');
+                showResult('testResult', `✅ Added to history: "${query}"`, 'success');
+                testGetHistory(); // Refresh history display
+            } catch (error) {
+                showResult('testResult', `❌ Error adding to history: ${error.message}`, 'error');
+            }
+        };
+
+        window.testGetHistory = function() {
+            try {
+                const history = searchHistoryService.getHistory();
+                showResult('testResult', `📋 Current History (${history.length} items):\n\n${JSON.stringify(history, null, 2)}`, 'info');
+            } catch (error) {
+                showResult('testResult', `❌ Error getting history: ${error.message}`, 'error');
+            }
+        };
+
+        window.testClearHistory = function() {
+            try {
+                searchHistoryService.clearHistory();
+                showResult('testResult', '🗑️ History cleared', 'success');
+                testGetHistory(); // Refresh history display
+            } catch (error) {
+                showResult('testResult', `❌ Error clearing history: ${error.message}`, 'error');
+            }
+        };
+
+        window.testLocalStorage = function() {
+            try {
+                const saved = localStorage.getItem('searchHistory');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    showResult('testResult', `💾 localStorage contains:\n\n${JSON.stringify(parsed, null, 2)}`, 'info');
+                } else {
+                    showResult('testResult', '💾 localStorage is empty for searchHistory', 'info');
+                }
+            } catch (error) {
+                showResult('testResult', `❌ Error reading localStorage: ${error.message}`, 'error');
+            }
+        };
+
+        window.showLocalStorage = function() {
+            try {
+                const allStorage = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key) {
+                        allStorage[key] = localStorage.getItem(key);
+                    }
+                }
+                showResult('storageResult', `📦 All localStorage contents:\n\n${JSON.stringify(allStorage, null, 2)}`, 'info');
+            } catch (error) {
+                showResult('storageResult', `❌ Error reading localStorage: ${error.message}`, 'error');
+            }
+        };
+
+        window.clearAllStorage = function() {
+            try {
+                localStorage.clear();
+                showResult('storageResult', '🗑️ All localStorage cleared', 'success');
+            } catch (error) {
+                showResult('storageResult', `❌ Error clearing localStorage: ${error.message}`, 'error');
+            }
+        };
+
+        window.testGlobalFunction = function() {
+            const query = document.getElementById('testQuery').value;
+            if (!query.trim()) {
+                showResult('globalResult', 'Please enter a query', 'error');
+                return;
+            }
+
+            try {
+                if (typeof window.addToSearchHistory === 'function') {
+                    window.addToSearchHistory(query, 'Global function test response');
+                    showResult('globalResult', `✅ Global function called: "${query}"`, 'success');
+                } else {
+                    showResult('globalResult', '❌ Global addToSearchHistory function not available', 'error');
+                }
+            } catch (error) {
+                showResult('globalResult', `❌ Error calling global function: ${error.message}`, 'error');
+            }
+        };
+
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Initialize test
+        console.log('Search History Test Page Loaded');
+        console.log('Global addToSearchHistory available:', typeof window.addToSearchHistory);
+    </script>
+</body>
+</html>

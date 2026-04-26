@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, Mail, Calendar, Shield, LogOut, History, Search, Trash2, ArrowRight, Clock } from 'lucide-react';
+import { User, History, Search, Trash2, LogOut, Shield, AlertTriangle, Mail, Calendar, Clock } from 'lucide-react';
 import { useTranslation } from './LanguageSelector';
+import { searchHistoryService } from '../../utils/searchHistory';
 
 interface UserProfileDisplayProps {
   onLogout: () => void;
@@ -30,19 +31,84 @@ export function UserProfileDisplay({ onLogout, userProfile }: UserProfileDisplay
   const [activeTab, setActiveTab] = useState<'profile' | 'history'>('profile');
   const { translate } = useTranslation();
 
-  const addToHistory = (query: string, response?: string) => {
-    const newItem: SearchHistoryItem = {
-      id: Date.now().toString(),
-      query,
-      timestamp: new Date(),
-      response: response?.substring(0, 100) + '...',
-      category: categorizeQuery(query)
-    };
+  useEffect(() => {
+    loadUserInfo();
+    loadSearchHistory();
+    
+    // Force reload search history on mount
+    const interval = setInterval(() => {
+      loadSearchHistory();
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [userProfile]);
 
-    const updatedHistory = [newItem, ...searchHistory.slice(0, 49)]; // Keep last 50 items
-    setSearchHistory(updatedHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+  // Simple direct addToHistory function
+  const addToHistory = (query: string, response?: string) => {
+    console.log('UserProfileDisplay: Direct addToHistory called:', { query, response });
+    
+    try {
+      const newItem: SearchHistoryItem = {
+        id: Date.now().toString(),
+        query,
+        timestamp: new Date(),
+        response,
+        category: categorizeQuery(query)
+      };
+
+      // Get existing history from localStorage
+      const existingHistory = localStorage.getItem('searchHistory');
+      let currentHistory: SearchHistoryItem[] = [];
+      
+      if (existingHistory) {
+        try {
+          currentHistory = JSON.parse(existingHistory);
+        } catch (e) {
+          console.error('Error parsing existing history:', e);
+          currentHistory = [];
+        }
+      }
+
+      // Add new item and keep only last 50
+      const updatedHistory = [newItem, ...currentHistory.slice(0, 49)];
+      
+      // Save to localStorage
+      localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+      
+      // Update state
+      setSearchHistory(updatedHistory);
+      
+      console.log('UserProfileDisplay: History saved. New length:', updatedHistory.length);
+    } catch (error) {
+      console.error('UserProfileDisplay: Error in addToHistory:', error);
+    }
   };
+
+  // Expose globally and add test function
+  useEffect(() => {
+    console.log('UserProfileDisplay: Exposing addToSearchHistory function');
+    (window as any).addToSearchHistory = addToHistory;
+    
+    // Add test function for debugging
+    (window as any).testSearchHistory = () => {
+      const history = searchHistory;
+      console.log('Search History Test:', history);
+      alert(`Search History has ${history.length} items. Check console for details.`);
+      
+      // Force add a test item if empty
+      if (history.length === 0) {
+        addToHistory('Test: User Profile Check', 'This is a test item to verify search history is working');
+        setTimeout(() => {
+          console.log('After adding test item:', searchHistory);
+        }, 100);
+      }
+    };
+    
+    return () => {
+      delete (window as any).addToSearchHistory;
+      delete (window as any).testSearchHistory;
+    };
+  }, []);
 
   const categorizeQuery = (query: string): SearchHistoryItem['category'] => {
     const lower = query.toLowerCase();
@@ -52,18 +118,26 @@ export function UserProfileDisplay({ onLogout, userProfile }: UserProfileDisplay
     return 'general';
   };
 
-  useEffect(() => {
-    loadUserInfo();
-    loadSearchHistory();
-  }, [userProfile]);
-
-  // Expose addToHistory function globally for other components
-  useEffect(() => {
-    (window as any).addToSearchHistory = addToHistory;
-    return () => {
-      delete (window as any).addToSearchHistory;
-    };
-  }, [searchHistory]);
+  const loadSearchHistory = () => {
+    try {
+      console.log('UserProfileDisplay: Loading search history from localStorage...');
+      const savedHistory = localStorage.getItem('searchHistory');
+      if (savedHistory) {
+        const parsed = JSON.parse(savedHistory);
+        const history = parsed.map((item: any) => ({
+          ...item,
+          timestamp: new Date(item.timestamp)
+        }));
+        setSearchHistory(history);
+        console.log('UserProfileDisplay: Loaded', history.length, 'history items');
+      } else {
+        console.log('UserProfileDisplay: No existing history found');
+      }
+    } catch (error) {
+      console.error('UserProfileDisplay: Error loading search history:', error);
+      setSearchHistory([]);
+    }
+  };
 
   const loadUserInfo = () => {
     try {
@@ -77,36 +151,50 @@ export function UserProfileDisplay({ onLogout, userProfile }: UserProfileDisplay
           allergies: userProfile.allergies || [],
           dietType: userProfile.dietType,
         });
+        console.log('UserProfileDisplay: Loaded user info:', user.email);
+      } else {
+        // Set default user info if no user found
+        setUserInfo({
+          name: 'Guest User',
+          email: 'guest@example.com',
+          createdAt: new Date().toISOString(),
+          allergies: userProfile.allergies || [],
+          dietType: userProfile.dietType,
+        });
+        console.log('UserProfileDisplay: No user found, using default');
       }
     } catch (error) {
       console.error('Error loading user info:', error);
-    }
-  };
-
-  const loadSearchHistory = () => {
-    try {
-      const savedHistory = localStorage.getItem('searchHistory');
-      if (savedHistory) {
-        const parsed = JSON.parse(savedHistory);
-        setSearchHistory(parsed.map((item: any) => ({
-          ...item,
-          timestamp: new Date(item.timestamp)
-        })));
-      }
-    } catch (error) {
-      console.error('Error loading search history:', error);
+      // Set default user info on error
+      setUserInfo({
+        name: 'Guest User',
+        email: 'guest@example.com',
+        createdAt: new Date().toISOString(),
+        allergies: userProfile.allergies || [],
+        dietType: userProfile.dietType,
+      });
     }
   };
 
   const clearHistory = () => {
-    setSearchHistory([]);
-    localStorage.removeItem('searchHistory');
+    try {
+      localStorage.removeItem('searchHistory');
+      setSearchHistory([]);
+      console.log('UserProfileDisplay: History cleared');
+    } catch (error) {
+      console.error('UserProfileDisplay: Error clearing history:', error);
+    }
   };
 
   const deleteHistoryItem = (id: string) => {
-    const updatedHistory = searchHistory.filter(item => item.id !== id);
-    setSearchHistory(updatedHistory);
-    localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+    try {
+      const updatedHistory = searchHistory.filter(item => item.id !== id);
+      setSearchHistory(updatedHistory);
+      localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+      console.log('UserProfileDisplay: Deleted history item:', id);
+    } catch (error) {
+      console.error('UserProfileDisplay: Error deleting history item:', error);
+    }
   };
 
   const formatTimeAgo = (timestamp: Date) => {
