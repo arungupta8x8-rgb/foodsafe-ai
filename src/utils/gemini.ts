@@ -1,5 +1,5 @@
 // Gemini API Configuration
-export const GEMINI_API_KEY = 'AIzaSyC_kmLk9xPRxmM5ML-KXs-9QEbXLGJAWeA';
+export const GEMINI_API_KEY = 'AIzaSyC6vmm3mAJeDzDfdGwGS4QZxWI5hB0Q13U';
 
 // Check if API key is available
 export const isGeminiAvailable = () => {
