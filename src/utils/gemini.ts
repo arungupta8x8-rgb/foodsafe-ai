@@ -1,5 +1,5 @@
 // Gemini API Configuration
-export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+export const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyC_kmLk9xPRxmM5ML-KXs-9QEbXLGJAWeA';
 
 // Check if API key is available
 export const isGeminiAvailable = () => {
